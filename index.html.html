@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dolci Patisserie — Calculadora de Costos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+:root {
+  --blue:#1a3f90; --blue-light:#2a5cc7; --blue-dark:#0f2a63;
+  --burgundy:#751038; --burgundy-light:#9a1a4e; --burgundy-dark:#5a0c2b;
+  --bg:#f0f2f7; --card:#ffffff; --card-glass:rgba(255,255,255,0.85);
+  --text:#1e1e2e; --text-secondary:#5e6278; --border:#e2e5f1;
+  --success:#22c55e; --danger:#ef4444; --warning:#f59e0b;
+  --shadow:0 4px 24px rgba(26,63,144,0.08); --shadow-lg:0 8px 40px rgba(26,63,144,0.12);
+  --radius:12px; --radius-sm:8px; --transition:0.3s cubic-bezier(0.4,0,0.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:linear-gradient(180deg,var(--blue-dark) 0%,var(--blue) 50%,var(--burgundy-dark) 100%);padding:24px 16px;display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{text-align:center;margin-bottom:32px;padding:8px;}
+.sidebar-logo svg{width:160px;height:auto;}
+.sidebar-nav{flex:1;display:flex;flex-direction:column;gap:4px;}
+.nav-btn{display:flex;align-items:center;gap:12px;padding:14px 16px;border:none;background:transparent;color:rgba(255,255,255,0.7);font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);text-align:left;width:100%;}
+.nav-btn:hover{background:rgba(255,255,255,0.1);color:#fff;}
+.nav-btn.active{background:rgba(255,255,255,0.18);color:#fff;font-weight:600;}
+.nav-btn .icon{font-size:20px;width:28px;text-align:center;}
+.sidebar-footer{padding:16px 0 0;border-top:1px solid rgba(255,255,255,0.15);text-align:center;color:rgba(255,255,255,0.4);font-size:12px;}
+
+/* MAIN */
+.main{margin-left:240px;padding:32px;min-height:100vh;}
+.page-header{margin-bottom:28px;animation:fadeIn 0.4s ease;}
+.page-header h1{font-size:28px;font-weight:700;color:var(--blue-dark);display:flex;align-items:center;gap:12px;}
+.page-header p{color:var(--text-secondary);margin-top:4px;font-size:14px;}
+
+/* CARDS */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;transition:var(--transition);border:1px solid var(--border);}
+.card:hover{box-shadow:var(--shadow-lg);}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.card-title{font-size:18px;font-weight:600;color:var(--blue-dark);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:var(--transition);}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:var(--blue-light);transform:translateY(-1px);}
+.btn-burgundy{background:var(--burgundy);color:#fff;}
+.btn-burgundy:hover{background:var(--burgundy-light);transform:translateY(-1px);}
+.btn-success{background:var(--success);color:#fff;}
+.btn-success:hover{opacity:0.9;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-danger:hover{opacity:0.9;}
+.btn-outline{background:transparent;border:1.5px solid var(--blue);color:var(--blue);}
+.btn-outline:hover{background:var(--blue);color:#fff;}
+.btn-sm{padding:6px 14px;font-size:13px;}
+.btn-icon{width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-size:16px;}
+
+/* INPUTS */
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;}
+input,select,textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:14px;color:var(--text);background:#fff;transition:var(--transition);}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,63,144,0.1);}
+.input-row{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));}
+
+/* SEARCH */
+.search-box{position:relative;max-width:360px;}
+.search-box input{padding-left:40px;background:var(--card-glass);}
+.search-box::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;}
+
+/* TABLE */
+.table-wrapper{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+thead th{background:linear-gradient(135deg,var(--blue) 0%,var(--blue-light) 100%);color:#fff;padding:12px 14px;text-align:left;font-weight:500;white-space:nowrap;}
+thead th:first-child{border-radius:var(--radius-sm) 0 0 0;}
+thead th:last-child{border-radius:0 var(--radius-sm) 0 0;}
+tbody tr{transition:var(--transition);}
+tbody tr:hover{background:rgba(26,63,144,0.03);}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.category-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500;}
+.badge-insumo{background:#e8f0fe;color:var(--blue);}
+.badge-packaging{background:#fce8ef;color:var(--burgundy);}
+.badge-servicio{background:#fef3cd;color:#92400e;}
+
+/* FILTER PILLS */
+.filter-pills{display:flex;gap:8px;flex-wrap:wrap;}
+.pill{padding:7px 16px;border:1.5px solid var(--border);border-radius:20px;background:transparent;font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;transition:var(--transition);color:var(--text-secondary);}
+.pill.active,.pill:hover{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+/* RECIPE CARDS */
+.recipes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
+.recipe-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:20px;transition:var(--transition);cursor:pointer;position:relative;overflow:hidden;}
+.recipe-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--blue),var(--burgundy));}
+.recipe-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);}
+.recipe-card h3{font-size:17px;font-weight:600;color:var(--blue-dark);margin-bottom:8px;}
+.recipe-card .recipe-meta{font-size:13px;color:var(--text-secondary);}
+.recipe-card .recipe-cost{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:15px;font-weight:600;color:var(--burgundy);}
+.recipe-card-img{width:100%;height:160px;object-fit:cover;border-radius:var(--radius-sm);margin-bottom:12px;background:var(--bg);}
+
+/* SECTIONS */
+.section-block{border:1.5px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;background:rgba(26,63,144,0.02);transition:var(--transition);}
+.section-block:hover{border-color:var(--blue);}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.section-title{font-size:16px;font-weight:600;color:var(--blue);display:flex;align-items:center;gap:8px;}
+.ingredient-row{display:grid;grid-template-columns:1fr 100px 100px 40px;gap:8px;align-items:center;margin-bottom:8px;}
+
+/* SLIDERS */
+.slider-group{display:flex;align-items:center;gap:12px;}
+.slider-group input[type="range"]{flex:1;padding:0;-webkit-appearance:none;height:6px;border-radius:3px;background:var(--border);border:none;}
+.slider-group input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--blue);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
+.slider-group input[type="number"]{width:90px;text-align:center;}
+
+/* SUMMARY BOX */
+.summary-box{background:linear-gradient(135deg,var(--blue-dark) 0%,var(--burgundy-dark) 100%);color:#fff;border-radius:var(--radius);padding:24px;margin-top:20px;}
+.summary-row{display:flex;justify-content:space-between;padding:8px 0;font-size:15px;}
+.summary-row.total{border-top:2px solid rgba(255,255,255,0.3);margin-top:8px;padding-top:16px;font-size:20px;font-weight:700;}
+
+/* PRODUCT CARDS */
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.product-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:20px;transition:var(--transition);position:relative;}
+.product-card:hover{box-shadow:var(--shadow-lg);}
+.product-card .product-name{font-size:16px;font-weight:600;color:var(--blue-dark);}
+.product-card .product-client{font-size:13px;color:var(--text-secondary);margin-top:2px;}
+.product-card .product-price{font-size:22px;font-weight:700;color:var(--burgundy);margin-top:12px;}
+.product-card .product-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+.product-check{position:absolute;top:16px;right:16px;width:22px;height:22px;cursor:pointer;accent-color:var(--blue);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;visibility:hidden;transition:var(--transition);}
+.modal-overlay.active{opacity:1;visibility:visible;}
+.modal{background:var(--card);border-radius:var(--radius);width:90%;max-width:700px;max-height:85vh;overflow-y:auto;padding:32px;transform:translateY(20px);transition:var(--transition);box-shadow:var(--shadow-lg);}
+.modal-overlay.active .modal{transform:translateY(0);}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.modal-header h2{font-size:22px;font-weight:700;color:var(--blue-dark);}
+.modal-close{width:36px;height:36px;border:none;background:var(--bg);border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:var(--transition);}
+.modal-close:hover{background:var(--danger);color:#fff;}
+
+/* TOAST */
+.toast-container{position:fixed;top:24px;right:24px;z-index:2000;display:flex;flex-direction:column;gap:8px;}
+.toast{padding:14px 20px;border-radius:var(--radius-sm);color:#fff;font-size:14px;animation:slideIn 0.3s ease,fadeOut 0.3s ease 2.7s;box-shadow:var(--shadow);}
+.toast-success{background:var(--success);}
+.toast-error{background:var(--danger);}
+.toast-info{background:var(--blue);}
+
+/* TAB CONTENT */
+.tab-content{display:none;animation:fadeIn 0.4s ease;}
+.tab-content.active{display:block;}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-secondary);}
+.empty-state .icon{font-size:48px;margin-bottom:16px;opacity:0.5;}
+.empty-state p{font-size:15px;margin-bottom:20px;}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(100px)}to{opacity:1;transform:translateX(0)}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+
+/* UTILITIES */
+.flex{display:flex;}.flex-wrap{flex-wrap:wrap;}.items-center{align-items:center;}.justify-between{justify-content:space-between;}.gap-8{gap:8px;}.gap-12{gap:12px;}.gap-16{gap:16px;}.mt-16{margin-top:16px;}.mt-24{margin-top:24px;}.mb-16{margin-bottom:16px;}.text-right{text-align:right;}.text-center{text-align:center;}.text-sm{font-size:13px;}.text-muted{color:var(--text-secondary);}.font-bold{font-weight:600;}.w-100{width:100%;}.hidden{display:none!important;}
+
+/* MOBILE */
+@media(max-width:768px){
+  .sidebar{position:fixed;bottom:0;left:0;right:0;top:auto;width:100%;height:auto;flex-direction:row;padding:8px 12px;background:linear-gradient(90deg,var(--blue-dark),var(--burgundy-dark));}
+  .sidebar-logo,.sidebar-footer{display:none;}
+  .sidebar-nav{flex-direction:row;justify-content:space-around;gap:0;}
+  .nav-btn{flex-direction:column;padding:8px 4px;font-size:11px;gap:4px;}
+  .nav-btn .icon{font-size:18px;}
+  .nav-btn span:not(.icon){font-size:10px;}
+  .main{margin-left:0;padding:16px 12px 80px;}
+  .page-header h1{font-size:22px;}
+  .ingredient-row{grid-template-columns:1fr 80px 80px 36px;}
+  .input-row{grid-template-columns:1fr;}
+  .recipes-grid,.products-grid{grid-template-columns:1fr;}
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--text-secondary);}
+
+/* PRINT */
+@media print{
+  body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  body *{visibility:hidden;}
+  #print-template,#print-template *{visibility:visible;}
+  #print-template{display:block!important;position:absolute;left:0;top:0;width:100%;background:white!important;}
+  .no-print{display:none!important;}
+  .sidebar,.toast-container{display:none;}
+  .main{margin-left:0;}
+}
+
+#print-template{display:none;font-family:'Outfit',sans-serif;color:#1a3f90;}
+.pdf-page{width:210mm;min-height:297mm;padding:20mm;margin:0 auto;background:white;position:relative;page-break-after:always;}
+.pdf-cover{background:#1a3f90!important;-webkit-print-color-adjust:exact;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white!important;}
+.pdf-cover svg{width:300px;filter:brightness(0) invert(1);}
+.pdf-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px;}
+.pdf-title{font-size:48px;font-weight:700;color:#751038;}
+.pdf-body-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:30px;margin-bottom:30px;}
+.pdf-info-list{list-style:none;font-size:16px;line-height:1.8;}
+.pdf-info-list b{color:#1a3f90;min-width:120px;display:inline-block;}
+.pdf-product-img{width:100%;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+.pdf-table{width:100%;border-collapse:collapse;margin-top:20px;}
+.pdf-table th{background:#751038!important;color:white!important;-webkit-print-color-adjust:exact;padding:12px;text-align:center;text-transform:uppercase;font-size:13px;}
+.pdf-table td{padding:15px;border-bottom:8px solid white!important;background:#e8f0fe!important;-webkit-print-color-adjust:exact;text-align:center;}
+.pdf-table .td-detalle{text-align:left;width:50%;}
+.pdf-footer{margin-top:50px;display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid #eee;padding-top:20px;}
+.pdf-contact{font-size:14px;color:#1a3f90;}
+.pdf-stamp{width:100px;opacity:0.8;}
+
+/* DROPDOWN SEARCH */
+.dropdown-search{position:relative;}
+.dropdown-search .dropdown-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--blue);border-radius:0 0 var(--radius-sm) var(--radius-sm);max-height:200px;overflow-y:auto;z-index:50;display:none;box-shadow:var(--shadow);}
+.dropdown-search .dropdown-list.show{display:block;}
+.dropdown-item{padding:8px 14px;cursor:pointer;font-size:14px;transition:background 0.15s;}
+.dropdown-item:hover{background:rgba(26,63,144,0.06);}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <!-- Dolci Patisserie SVG logo inline -->
+    <svg viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+      <text x="10" y="55" font-family="Georgia, serif" font-size="52" font-style="italic" fill="white" font-weight="400">Dolci</text>
+      <text x="120" y="74" font-family="'Outfit', sans-serif" font-size="16" fill="rgba(255,255,255,0.85)" letter-spacing="4" font-weight="300">Patisserie</text>
+    </svg>
+  </div>
+  <nav class="sidebar-nav">
+    <button class="nav-btn active" data-tab="insumos"><span class="icon">📦</span><span>Insumos</span></button>
+    <button class="nav-btn" data-tab="recetas"><span class="icon">📖</span><span>Recetas</span></button>
+    <button class="nav-btn" data-tab="presupuestar"><span class="icon">🧮</span><span>Presupuestar</span></button>
+    <button class="nav-btn" data-tab="productos"><span class="icon">🛒</span><span>Productos</span></button>
+  </nav>
+  <div class="sidebar-footer">Dolci Patisserie © 2026</div>
+</aside>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- MAIN CONTENT -->
+<main class="main" id="main-content">
+
+  <!-- ==================== TAB: INSUMOS ==================== -->
+  <div class="tab-content active" id="tab-insumos">
+    <div class="page-header">
+      <h1>📦 Insumos</h1>
+      <p>Gestión de insumos, packaging y servicios con precios actualizables</p>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="flex gap-12 items-center flex-wrap">
+          <div class="search-box"><input type="text" id="insumos-search" placeholder="Buscar insumo..."></div>
+          <div class="filter-pills" id="insumos-filter">
+            <button class="pill active" data-filter="todos">Todos</button>
+            <button class="pill" data-filter="insumo">Insumos</button>
+            <button class="pill" data-filter="packaging">Packaging</button>
+            <button class="pill" data-filter="servicio">Servicios</button>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-add-insumo">➕ Nuevo Insumo</button>
+      </div>
+      <div id="insumo-form-container" class="hidden" style="margin-bottom:20px;">
+        <div class="section-block">
+          <div class="section-header">
+            <span class="section-title">📝 Nuevo / Editar Insumo</span>
+            <button class="btn btn-sm btn-danger" id="btn-cancel-insumo">✖ Cancelar</button>
+          </div>
+          <div class="input-row">
+            <div class="form-group"><label>Nombre</label><input type="text" id="insumo-nombre" placeholder="Ej: Harina común"></div>
+            <div class="form-group"><label>Categoría</label><select id="insumo-categoria"><option value="insumo">Insumo</option><option value="packaging">Packaging</option><option value="servicio">Servicio</option></select></div>
+            <div class="form-group"><label>Unidad</label><select id="insumo-unidad"><option value="gramos">Por gramos (g)</option><option value="unidad">Por unidad</option></select></div>
+          </div>
+          <div class="input-row">
+            <div class="form-group"><label id="lbl-cantidad-comprada">Cantidad comprada (g)</label><input type="number" id="insumo-cantidad" placeholder="Ej: 1000" step="any"></div>
+            <div class="form-group"><label>Precio ($)</label><input type="number" id="insumo-precio" placeholder="Ej: 5000" step="any"></div>
+          </div>
+          <input type="hidden" id="insumo-edit-id" value="">
+          <button class="btn btn-primary mt-16" id="btn-save-insumo">💾 Guardar Insumo</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Nombre</th><th>Categoría</th><th>Cant. Comprada</th><th>Precio</th><th>Precio/g</th><th>Precio/100g</th><th>Precio/kg</th><th>Acciones</th></tr></thead>
+          <tbody id="insumos-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TAB: RECETAS ==================== -->
+  <div class="tab-content" id="tab-recetas">
+    <div class="page-header">
+      <h1>📖 Recetas</h1>
+      <p>Definí recetas con múltiples secciones, ingredientes y costos operativos</p>
+    </div>
+    <div class="flex justify-between items-center mb-16">
+      <div class="search-box"><input type="text" id="recetas-search" placeholder="Buscar receta..."></div>
+      <button class="btn btn-primary" id="btn-add-receta">➕ Nueva Receta</button>
+    </div>
+    <div class="recipes-grid" id="recetas-grid"></div>
+  </div>
+
+  <!-- ==================== TAB: PRESUPUESTAR ==================== -->
+  <div class="tab-content" id="tab-presupuestar">
+    <div class="page-header">
+      <h1>🧮 Presupuestar</h1>
+      <p>Elegí una receta, ajustá las cantidades y calculá el presupuesto</p>
+    </div>
+    <div class="card mb-16">
+      <div class="form-group"><label>Seleccionar Receta</label><select id="presup-receta-select"><option value="">— Elegí una receta —</option></select></div>
+    </div>
+    <div id="presup-sections-container"></div>
+    <div id="presup-controls" class="hidden">
+      <div class="card mt-16">
+        <h3 class="card-title mb-16">⚙️ Costos Operativos</h3>
+        <div class="form-group"><label>Mano de Obra (%)</label><div class="slider-group"><input type="range" id="presup-mo-slider" min="0" max="100" value="20"><input type="number" id="presup-mo-input" min="0" max="100" value="20"><span>%</span></div></div>
+        <div class="form-group"><label>Energía ($)</label><div class="slider-group"><input type="range" id="presup-energia-slider" min="0" max="10000" value="500" step="50"><input type="number" id="presup-energia-input" min="0" value="500" step="50"><span>$</span></div></div>
+        <div class="form-group"><label>Ganancia (%)</label><div class="slider-group"><input type="range" id="presup-ganancia-slider" min="0" max="200" value="40"><input type="number" id="presup-ganancia-input" min="0" max="500" value="40"><span>%</span></div></div>
+      </div>
+      <div class="summary-box" id="presup-summary">
+        <div class="summary-row"><span>Costo Insumos</span><span id="presup-costo-insumos">$0</span></div>
+        <div class="summary-row"><span>Mano de Obra</span><span id="presup-costo-mo">$0</span></div>
+        <div class="summary-row"><span>Energía</span><span id="presup-costo-energia">$0</span></div>
+        <div class="summary-row" style="border-top:1px solid rgba(255,255,255,0.2);padding-top:12px;margin-top:8px"><span>Costo de Producción</span><span id="presup-costo-produccion">$0</span></div>
+        <div class="summary-row"><span>Ganancia</span><span id="presup-costo-ganancia">$0</span></div>
+        <div class="summary-row total"><span>💰 Precio Sugerido</span><span id="presup-precio-sugerido">$0</span></div>
+      </div>
+      <div class="flex gap-12 mt-24" style="justify-content:flex-end">
+        <button class="btn btn-burgundy" id="btn-save-presupuesto">💾 Guardar Presupuesto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TAB: PRODUCTOS ==================== -->
+  <div class="tab-content" id="tab-productos">
+    <div class="page-header">
+      <h1>🛒 Productos</h1>
+      <p>Presupuestos guardados — Gestioná pedidos y compartí con clientes</p>
+    </div>
+    <div class="card mb-16">
+      <div class="card-header">
+        <div class="search-box"><input type="text" id="productos-search" placeholder="Buscar producto o cliente..."></div>
+        <div class="flex gap-8">
+          <button class="btn btn-burgundy hidden" id="btn-sumar-productos">📊 Ver Total Seleccionados</button>
+          <button class="btn btn-success hidden" id="btn-whatsapp-selected">📱 Enviar por WhatsApp</button>
+        </div>
+      </div>
+    </div>
+    <div class="products-grid" id="productos-grid"></div>
+  </div>
+
+</main>
+
+<!-- ==================== MODAL ==================== -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<!-- ==================== PRINT TEMPLATE ==================== -->
+<div id="print-template">
+  <div class="pdf-page pdf-cover">
+    <svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" style="width:400px;filter:brightness(0) invert(1)">
+      <text x="10" y="72" font-family="Georgia,serif" font-size="72" font-style="italic" fill="white">Dolci</text>
+      <text x="160" y="90" font-family="Arial,sans-serif" font-size="20" fill="rgba(255,255,255,0.85)" letter-spacing="5">Patisserie</text>
+    </svg>
+  </div>
+  <div class="pdf-page">
+    <div class="pdf-header">
+      <div class="pdf-title">Presupuesto</div>
+      <svg viewBox="0 0 300 70" xmlns="http://www.w3.org/2000/svg" style="width:180px">
+        <text x="5" y="50" font-family="Georgia,serif" font-size="52" font-style="italic" fill="#1a3f90">Dolci</text>
+        <text x="110" y="66" font-family="Arial,sans-serif" font-size="15" fill="#751038" letter-spacing="3">Patisserie</text>
+      </svg>
+    </div>
+    <div class="pdf-body-grid">
+      <div class="pdf-info">
+        <ul class="pdf-info-list">
+          <li><b>Fecha del pedido:</b> <span id="pdf-fecha-hoy"></span></li>
+          <li><b>Fecha de entrega:</b> <span id="pdf-fecha-entrega"></span></li>
+          <li style="margin-top:12px"><b>Cliente:</b> <span id="pdf-cliente"></span></li>
+          <li><b>Dirección:</b> <span id="pdf-direccion"></span></li>
+          <li><b>Tel-Cel:</b> <span id="pdf-telefono"></span></li>
+          <li><b>E-mail:</b> <span id="pdf-email"></span></li>
+        </ul>
+        <div style="margin-top:30px"><p style="font-weight:600">Características:</p><p id="pdf-caracteristicas"></p></div>
+      </div>
+      <div><img id="pdf-img" src="" class="pdf-product-img"></div>
+    </div>
+    <table class="pdf-table">
+      <thead><tr><th>Cantidad</th><th>Detalle</th><th>Valor unitario</th><th>Valor total</th></tr></thead>
+      <tbody id="pdf-table-body"></tbody>
+    </table>
+    <div class="pdf-footer">
+      <div class="pdf-contact">
+        <p><b>Contacto</b></p>
+        <p>Tel: 3512 43-5282</p>
+        <p>E-mail: dolcipatisseriecba@gmail.com</p>
+        <p>@dolcipatisseriecba</p>
+      </div>
+      <svg viewBox="0 0 150 60" xmlns="http://www.w3.org/2000/svg" class="pdf-stamp" style="opacity:0.3">
+        <text x="5" y="45" font-family="Georgia,serif" font-size="42" font-style="italic" fill="#1a3f90">Dolci</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== INITIAL DATA ====================
+const INITIAL_INSUMOS = [
+  {id:1,nombre:"Aceite",categoria:"insumo",unidad:"gramos",cantidadComprada:1500,precio:4000},
+  {id:2,nombre:"Aceite de oliva",categoria:"insumo",unidad:"gramos",cantidadComprada:900,precio:4500},
+  {id:3,nombre:"Almendras",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:22000},
+  {id:4,nombre:"Azúcar",categoria:"insumo",unidad:"gramos",cantidadComprada:10000,precio:15000},
+  {id:5,nombre:"Azúcar fea",categoria:"insumo",unidad:"gramos",cantidadComprada:10000,precio:12000},
+  {id:6,nombre:"Azúcar impalpable",categoria:"insumo",unidad:"gramos",cantidadComprada:5000,precio:12650},
+  {id:7,nombre:"Azúcar rubia",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:2600},
+  {id:8,nombre:"Bicarbonato",categoria:"insumo",unidad:"gramos",cantidadComprada:500,precio:3200},
+  {id:9,nombre:"Cacao",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:20700},
+  {id:10,nombre:"Café",categoria:"insumo",unidad:"gramos",cantidadComprada:170,precio:8000},
+  {id:11,nombre:"Chocolate blanco",categoria:"insumo",unidad:"gramos",cantidadComprada:6000,precio:68000},
+  {id:12,nombre:"Chocolate semi amargo",categoria:"insumo",unidad:"gramos",cantidadComprada:6000,precio:68000},
+  {id:13,nombre:"Chips de chocolate",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:12000},
+  {id:14,nombre:"Claras",categoria:"insumo",unidad:"gramos",cantidadComprada:35,precio:140},
+  {id:15,nombre:"Coco rallado",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:9800},
+  {id:16,nombre:"Colorante rojo",categoria:"insumo",unidad:"gramos",cantidadComprada:60,precio:7000},
+  {id:17,nombre:"Coñac",categoria:"insumo",unidad:"gramos",cantidadComprada:750,precio:6690},
+  {id:18,nombre:"Crema bon o bon",categoria:"insumo",unidad:"gramos",cantidadComprada:290,precio:5800},
+  {id:19,nombre:"Crema de leche",categoria:"insumo",unidad:"gramos",cantidadComprada:3000,precio:30000},
+  {id:20,nombre:"Cremor tártaro",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:17493},
+  {id:21,nombre:"Duraznos",categoria:"insumo",unidad:"gramos",cantidadComprada:500,precio:3500},
+  {id:22,nombre:"Dulce de leche",categoria:"insumo",unidad:"gramos",cantidadComprada:10000,precio:45400},
+  {id:23,nombre:"Esencia de vainilla",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:2024},
+  {id:24,nombre:"Fécula de maíz",categoria:"insumo",unidad:"gramos",cantidadComprada:5000,precio:7200},
+  {id:25,nombre:"Frutilla",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:12000},
+  {id:26,nombre:"Frutos rojos",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:17000},
+  {id:27,nombre:"Galletas de vainilla",categoria:"insumo",unidad:"gramos",cantidadComprada:380,precio:600},
+  {id:28,nombre:"Gelatina",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:19825},
+  {id:29,nombre:"Harina común",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:1200},
+  {id:30,nombre:"Harina leudante",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:1400},
+  {id:31,nombre:"Harina 000",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:2500},
+  {id:32,nombre:"Huevos",categoria:"insumo",unidad:"gramos",cantidadComprada:1650,precio:7000},
+  {id:33,nombre:"Jugo de limón",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:6600},
+  {id:34,nombre:"Leche",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:2000},
+  {id:35,nombre:"Leche condensada",categoria:"insumo",unidad:"gramos",cantidadComprada:390,precio:3500},
+  {id:36,nombre:"Limón",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:3000},
+  {id:37,nombre:"Levadura seca",categoria:"insumo",unidad:"gramos",cantidadComprada:20,precio:1650},
+  {id:38,nombre:"Levadura fresca",categoria:"insumo",unidad:"gramos",cantidadComprada:50,precio:1200},
+  {id:39,nombre:"Maní",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:4000},
+  {id:40,nombre:"Maní con chocolate",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:14000},
+  {id:41,nombre:"Manteca",categoria:"insumo",unidad:"gramos",cantidadComprada:5000,precio:56000},
+  {id:42,nombre:"Manteca laminados",categoria:"insumo",unidad:"gramos",cantidadComprada:5000,precio:70000},
+  {id:43,nombre:"Margarina",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:4500},
+  {id:44,nombre:"Membrillo",categoria:"insumo",unidad:"gramos",cantidadComprada:500,precio:2500},
+  {id:45,nombre:"Menta",categoria:"insumo",unidad:"unidad",cantidadComprada:1,precio:1400},
+  {id:46,nombre:"Merengue",categoria:"insumo",unidad:"gramos",cantidadComprada:50,precio:2500},
+  {id:47,nombre:"Merenguitos",categoria:"insumo",unidad:"gramos",cantidadComprada:100,precio:1500},
+  {id:48,nombre:"Miel",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:10000},
+  {id:49,nombre:"Naranja",categoria:"insumo",unidad:"gramos",cantidadComprada:2000,precio:2000},
+  {id:50,nombre:"Nueces",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:20000},
+  {id:51,nombre:"Orégano",categoria:"insumo",unidad:"gramos",cantidadComprada:25,precio:1200},
+  {id:52,nombre:"Oreo",categoria:"insumo",unidad:"gramos",cantidadComprada:118,precio:1500},
+  {id:53,nombre:"Galletas Pamela",categoria:"insumo",unidad:"gramos",cantidadComprada:220,precio:1300},
+  {id:54,nombre:"Galletas chocolinas",categoria:"insumo",unidad:"gramos",cantidadComprada:250,precio:2500},
+  {id:55,nombre:"Pasta ballina",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:7000},
+  {id:56,nombre:"Peras",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:2000},
+  {id:57,nombre:"Polvo de hornear",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:4500},
+  {id:58,nombre:"Queso crema",categoria:"insumo",unidad:"gramos",cantidadComprada:4000,precio:35000},
+  {id:59,nombre:"Queso reggianito",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:20000},
+  {id:60,nombre:"Ralladura de limón",categoria:"insumo",unidad:"gramos",cantidadComprada:50,precio:1100},
+  {id:61,nombre:"Vainillas",categoria:"insumo",unidad:"gramos",cantidadComprada:148,precio:1100},
+  {id:62,nombre:"Ralladura de naranja",categoria:"insumo",unidad:"gramos",cantidadComprada:50,precio:1100},
+  {id:63,nombre:"Sal",categoria:"insumo",unidad:"gramos",cantidadComprada:250,precio:1400},
+  {id:64,nombre:"Fécula de mandioca",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:2200},
+  {id:65,nombre:"Yemas",categoria:"insumo",unidad:"gramos",cantidadComprada:20,precio:93},
+  {id:66,nombre:"Marshmallows",categoria:"insumo",unidad:"gramos",cantidadComprada:200,precio:2000},
+  {id:67,nombre:"Gomitas",categoria:"insumo",unidad:"gramos",cantidadComprada:500,precio:3500},
+  {id:68,nombre:"Rocklets",categoria:"insumo",unidad:"gramos",cantidadComprada:1000,precio:16500},
+  {id:69,nombre:"Palitos",categoria:"insumo",unidad:"gramos",cantidadComprada:500,precio:3900},
+  {id:70,nombre:"Moritas",categoria:"insumo",unidad:"gramos",cantidadComprada:500,precio:5942},
+  {id:71,nombre:"Chocolate block",categoria:"insumo",unidad:"gramos",cantidadComprada:300,precio:10438},
+  {id:72,nombre:"Bizcochuelo 24cm",categoria:"insumo",unidad:"gramos",cantidadComprada:1600,precio:8050},
+];
+
+// ==================== DB (localStorage) ====================
+const DB = {
+  _get(key,fallback){try{const d=localStorage.getItem('dolci_'+key);return d?JSON.parse(d):fallback;}catch(e){return fallback;}},
+  _set(key,val){localStorage.setItem('dolci_'+key,JSON.stringify(val));},
+  getInsumos(){let ins=this._get('insumos',null);if(!ins){ins=INITIAL_INSUMOS;this._set('insumos',ins);}return ins;},
+  saveInsumos(arr){this._set('insumos',arr);},
+  getRecetas(){return this._get('recetas',[]);},
+  saveRecetas(arr){this._set('recetas',arr);},
+  getProductos(){return this._get('productos',[]);},
+  saveProductos(arr){this._set('productos',arr);}
+};
+
+// ==================== UTILS ====================
+function fmtMoney(n){if(n==null||isNaN(n))return'$0';return'$'+Math.round(n).toLocaleString('es-AR');}
+function fmtDec(n,d=2){if(n==null||isNaN(n))return'0';return n.toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:d});}
+function precioXg(insumo){return insumo.cantidadComprada>0?insumo.precio/insumo.cantidadComprada:0;}
+function toast(msg,type='info'){const c=document.getElementById('toast-container');const t=document.createElement('div');t.className='toast toast-'+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
+function openModal(html){const o=document.getElementById('modal-overlay');document.getElementById('modal-content').innerHTML=html;o.classList.add('active');}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('active');}
+
+// ==================== NAV ====================
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='recetas')renderRecetas();
+    if(btn.dataset.tab==='presupuestar')loadPresupRecetas();
+    if(btn.dataset.tab==='productos')renderProductos();
+  });
+});
+document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target.id==='modal-overlay')closeModal();});
+
+// ==================== INSUMOS ====================
+let insumosFilter='todos';
+
+function renderInsumos(){
+  const insumos=DB.getInsumos();
+  const search=document.getElementById('insumos-search').value.toLowerCase();
+  const tbody=document.getElementById('insumos-table-body');
+  const filtered=insumos.filter(i=>{
+    if(insumosFilter!=='todos'&&i.categoria!==insumosFilter)return false;
+    if(search&&!i.nombre.toLowerCase().includes(search))return false;
+    return true;
+  });
+  tbody.innerHTML=filtered.map(i=>{
+    const pxg=precioXg(i);
+    const isU=i.unidad==='unidad';
+    const badgeClass=i.categoria==='insumo'?'badge-insumo':i.categoria==='packaging'?'badge-packaging':'badge-servicio';
+    return`<tr>
+      <td><strong>${i.nombre}</strong></td>
+      <td><span class="category-badge ${badgeClass}">${i.categoria}</span></td>
+      <td>${fmtDec(i.cantidadComprada)}${isU?' u':' g'}</td>
+      <td>${fmtMoney(i.precio)}</td>
+      <td>${isU?fmtMoney(i.precio/i.cantidadComprada)+'/u':fmtMoney(pxg)+'/g'}</td>
+      <td>${isU?'-':fmtMoney(pxg*100)}</td>
+      <td>${isU?'-':fmtMoney(pxg*1000)}</td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="editInsumo(${i.id})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteInsumo(${i.id})">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+document.getElementById('insumos-search').addEventListener('input',renderInsumos);
+document.querySelectorAll('#insumos-filter .pill').forEach(p=>{
+  p.addEventListener('click',()=>{
+    document.querySelectorAll('#insumos-filter .pill').forEach(x=>x.classList.remove('active'));
+    p.classList.add('active');
+    insumosFilter=p.dataset.filter;
+    renderInsumos();
+  });
+});
+
+document.getElementById('btn-add-insumo').addEventListener('click',()=>{
+  document.getElementById('insumo-edit-id').value='';
+  document.getElementById('insumo-nombre').value='';
+  document.getElementById('insumo-categoria').value='insumo';
+  document.getElementById('insumo-unidad').value='gramos';
+  document.getElementById('insumo-cantidad').value='';
+  document.getElementById('insumo-precio').value='';
+  document.getElementById('insumo-form-container').classList.remove('hidden');
+  document.getElementById('lbl-cantidad-comprada').textContent='Cantidad comprada (g)';
+});
+document.getElementById('btn-cancel-insumo').addEventListener('click',()=>{document.getElementById('insumo-form-container').classList.add('hidden');});
+document.getElementById('insumo-unidad').addEventListener('change',e=>{document.getElementById('lbl-cantidad-comprada').textContent=e.target.value==='unidad'?'Cantidad comprada (unidades)':'Cantidad comprada (g)';});
+
+document.getElementById('btn-save-insumo').addEventListener('click',()=>{
+  const nombre=document.getElementById('insumo-nombre').value.trim();
+  const categoria=document.getElementById('insumo-categoria').value;
+  const unidad=document.getElementById('insumo-unidad').value;
+  const cantidad=parseFloat(document.getElementById('insumo-cantidad').value);
+  const precio=parseFloat(document.getElementById('insumo-precio').value);
+  if(!nombre||!cantidad||!precio){toast('Completá todos los campos','error');return;}
+  const insumos=DB.getInsumos();
+  const editId=document.getElementById('insumo-edit-id').value;
+  if(editId){const idx=insumos.findIndex(i=>i.id==editId);if(idx>=0)insumos[idx]={...insumos[idx],nombre,categoria,unidad,cantidadComprada:cantidad,precio};}
+  else{insumos.push({id:Date.now(),nombre,categoria,unidad,cantidadComprada:cantidad,precio});}
+  DB.saveInsumos(insumos);
+  document.getElementById('insumo-form-container').classList.add('hidden');
+  renderInsumos();
+  toast(editId?'Insumo actualizado':'Insumo agregado','success');
+});
+
+function editInsumo(id){
+  const i=DB.getInsumos().find(x=>x.id===id);if(!i)return;
+  document.getElementById('insumo-edit-id').value=i.id;
+  document.getElementById('insumo-nombre').value=i.nombre;
+  document.getElementById('insumo-categoria').value=i.categoria;
+  document.getElementById('insumo-unidad').value=i.unidad||'gramos';
+  document.getElementById('insumo-cantidad').value=i.cantidadComprada;
+  document.getElementById('insumo-precio').value=i.precio;
+  document.getElementById('lbl-cantidad-comprada').textContent=i.unidad==='unidad'?'Cantidad comprada (unidades)':'Cantidad comprada (g)';
+  document.getElementById('insumo-form-container').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function deleteInsumo(id){
+  if(!confirm('¿Eliminar este insumo?'))return;
+  DB.saveInsumos(DB.getInsumos().filter(i=>i.id!==id));
+  renderInsumos();toast('Insumo eliminado','success');
+}
+
+// ==================== RECETAS ====================
+function renderRecetas(){
+  const recetas=DB.getRecetas();
+  const search=document.getElementById('recetas-search').value.toLowerCase();
+  const grid=document.getElementById('recetas-grid');
+  const filtered=recetas.filter(r=>!search||r.nombre.toLowerCase().includes(search));
+  if(!filtered.length){
+    grid.innerHTML=`<div class="empty-state"><div class="icon">📖</div><p>No hay recetas todavía</p><button class="btn btn-primary" onclick="openRecetaModal()">➕ Crear primera receta</button></div>`;
+    return;
+  }
+  const insumos=DB.getInsumos();
+  grid.innerHTML=filtered.map(r=>{
+    let costoTotal=0;
+    r.secciones.forEach(s=>s.ingredientes.forEach(ing=>{const ins=insumos.find(i=>i.id===ing.insumoId);if(ins)costoTotal+=precioXg(ins)*ing.cantidad;}));
+    const imgHTML=r.imagen?`<img src="${r.imagen}" class="recipe-card-img" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 160%22><rect width=%22400%22 height=%22160%22 fill=%22%23f0f2f7%22/><text x=%22200%22 y=%2290%22 text-anchor=%22middle%22 font-size=%2240%22>📖</text></svg>'">`:`<div class="recipe-card-img" style="display:flex;align-items:center;justify-content:center;font-size:40px">📖</div>`;
+    return`<div class="recipe-card" onclick="viewReceta(${r.id})">
+      ${imgHTML}
+      <h3>${r.nombre}</h3>
+      <div class="recipe-meta">${r.secciones.length} sección(es) · MO: ${r.manoObraPct}%</div>
+      <div class="recipe-cost">Costo insumos: ${fmtMoney(costoTotal)}</div>
+      <div style="position:absolute;top:12px;right:12px;display:flex;gap:4px">
+        <button class="btn btn-sm btn-outline no-print" onclick="event.stopPropagation();editReceta(${r.id})" style="background:white">✏️</button>
+        <button class="btn btn-sm btn-danger no-print" onclick="event.stopPropagation();deleteReceta(${r.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('recetas-search').addEventListener('input',renderRecetas);
+document.getElementById('btn-add-receta').addEventListener('click',()=>openRecetaModal());
+
+function buildInsumoOptions(selectedId){
+  const insumos=DB.getInsumos();
+  return`<option value="">Seleccionar...</option>`+insumos.map(i=>`<option value="${i.id}" ${i.id==selectedId?'selected':''}>${i.nombre} (${i.unidad==='unidad'?fmtMoney(i.precio)+'/u':fmtMoney(precioXg(i))+'/g'})</option>`).join('');
+}
+
+function openRecetaModal(receta){
+  const isEdit=!!receta;
+  const r=receta||{id:0,nombre:'',imagen:'',secciones:[{nombre:'Sección 1',rendimientoBase:1000,unidadRendimiento:'g',ingredientes:[{insumoId:'',cantidad:''}]}],manoObraPct:20,energiaPesos:500,gananciaPct:40};
+  let seccionesHTML=r.secciones.map((s,si)=>buildSeccionHTML(s,si)).join('');
+  openModal(`
+    <div class="modal-header">
+      <h2>${isEdit?'✏️ Editar':'📖 Nueva'} Receta</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="input-row">
+      <div class="form-group" style="flex:2"><label>Nombre de la Receta</label><input type="text" id="receta-nombre" value="${r.nombre}"></div>
+      <div class="form-group" style="flex:1">
+        <label>Foto</label>
+        <input type="file" id="receta-file" accept="image/*" style="display:none" onchange="document.getElementById('file-name').textContent=this.files[0].name">
+        <button class="btn btn-outline w-100" onclick="document.getElementById('receta-file').click()">📸 Elegir Foto</button>
+        <small id="file-name" class="text-muted" style="display:block;margin-top:4px">${r.imagen?'Ya tiene foto':'Sin archivo'}</small>
+        <input type="hidden" id="receta-imagen" value="${r.imagen||''}">
+      </div>
+    </div>
+    <div id="secciones-container">${seccionesHTML}</div>
+    <button class="btn btn-outline mt-16" onclick="addSeccion()">➕ Agregar Sección</button>
+    <hr style="margin:20px 0;border:none;border-top:1px solid var(--border)">
+    <div class="input-row">
+      <div class="form-group"><label>Mano de Obra (%)</label><input type="number" id="receta-mo" value="${r.manoObraPct}" min="0"></div>
+      <div class="form-group"><label>Energía ($)</label><input type="number" id="receta-energia" value="${r.energiaPesos}" min="0"></div>
+      <div class="form-group"><label>Ganancia (%)</label><input type="number" id="receta-ganancia" value="${r.gananciaPct}" min="0"></div>
+    </div>
+    <input type="hidden" id="receta-edit-id" value="${r.id}">
+    <div class="flex gap-8 mt-24" style="justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveReceta()">💾 Guardar Receta</button>
+    </div>
+  `);
+}
+
+function buildSeccionHTML(s,si){
+  let ingsHTML=s.ingredientes.map((ing,ii)=>`
+    <div class="ingredient-row">
+      <select class="ing-insumo" onchange="updateIngCosto(this)">${buildInsumoOptions(ing.insumoId)}</select>
+      <input type="number" class="ing-cantidad" placeholder="Cant." value="${ing.cantidad||''}" step="any" onchange="updateIngCosto(this)">
+      <span class="ing-costo text-sm text-muted">$0</span>
+      <button class="btn btn-sm btn-danger btn-icon" onclick="removeIngrediente(this)">✕</button>
+    </div>`).join('');
+  return`<div class="section-block" data-si="${si}">
+    <div class="section-header">
+      <div class="flex gap-8 items-center" style="flex:1">
+        <input type="text" class="sec-nombre" value="${s.nombre}" placeholder="Nombre sección" style="max-width:200px">
+        <input type="number" class="sec-rendimiento" value="${s.rendimientoBase}" placeholder="Rendimiento" step="any" style="max-width:120px">
+        <select class="sec-unidad" style="max-width:100px">
+          <option value="g" ${s.unidadRendimiento==='g'?'selected':''}>g</option>
+          <option value="unidades" ${s.unidadRendimiento==='unidades'?'selected':''}>unidades</option>
+        </select>
+      </div>
+      <button class="btn btn-sm btn-danger" onclick="removeSeccion(this)">🗑️ Sección</button>
+    </div>
+    <div class="ingredientes-list">${ingsHTML}</div>
+    <button class="btn btn-sm btn-outline mt-16" onclick="addIngrediente(this,${si})">➕ Ingrediente</button>
+  </div>`;
+}
+
+function addSeccion(){
+  const c=document.getElementById('secciones-container');
+  const si=c.children.length;
+  const div=document.createElement('div');
+  div.innerHTML=buildSeccionHTML({nombre:'Nueva Sección',rendimientoBase:1000,unidadRendimiento:'g',ingredientes:[{insumoId:'',cantidad:''}]},si);
+  c.appendChild(div.firstElementChild);
+}
+
+function removeSeccion(btn){
+  if(document.getElementById('secciones-container').children.length<=1){toast('Necesitás al menos una sección','error');return;}
+  btn.closest('.section-block').remove();
+}
+
+function addIngrediente(btn,si){
+  const list=btn.previousElementSibling;
+  const div=document.createElement('div');
+  div.innerHTML=`<div class="ingredient-row">
+    <select class="ing-insumo" onchange="updateIngCosto(this)">${buildInsumoOptions('')}</select>
+    <input type="number" class="ing-cantidad" placeholder="Cant." step="any" onchange="updateIngCosto(this)">
+    <span class="ing-costo text-sm text-muted">$0</span>
+    <button class="btn btn-sm btn-danger btn-icon" onclick="removeIngrediente(this)">✕</button>
+  </div>`;
+  list.appendChild(div.firstElementChild);
+}
+
+function removeIngrediente(btn){btn.closest('.ingredient-row').remove();}
+
+function updateIngCosto(el){
+  const row=el.closest('.ingredient-row');
+  const insumoId=parseInt(row.querySelector('.ing-insumo').value);
+  const cantidad=parseFloat(row.querySelector('.ing-cantidad').value)||0;
+  const ins=DB.getInsumos().find(i=>i.id===insumoId);
+  row.querySelector('.ing-costo').textContent=fmtMoney(ins?precioXg(ins)*cantidad:0);
+}
+
+function compressImage(file,maxWidth=800){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload=(event)=>{
+      const img=new Image();
+      img.src=event.target.result;
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        let w=img.width,h=img.height;
+        if(w>maxWidth){h=(maxWidth/w)*h;w=maxWidth;}
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg',0.7));
+      };
+    };
+    reader.onerror=err=>reject(err);
+  });
+}
+
+async function saveReceta(){
+  const nombre=document.getElementById('receta-nombre').value.trim();
+  if(!nombre){toast('Ingresá un nombre','error');return;}
+  const btnSave=document.querySelector('#modal-content .btn-primary');
+  if(btnSave){btnSave.disabled=true;btnSave.innerHTML='⌛ Procesando...';}
+  try{
+    let imgUrl=document.getElementById('receta-imagen').value;
+    const fileInput=document.getElementById('receta-file');
+    if(fileInput.files.length>0)imgUrl=await compressImage(fileInput.files[0]);
+    const secciones=[];
+    document.querySelectorAll('#secciones-container .section-block').forEach(sec=>{
+      const ings=[];
+      sec.querySelectorAll('.ingredient-row').forEach(row=>{
+        const insumoId=parseInt(row.querySelector('.ing-insumo').value);
+        const cantidad=parseFloat(row.querySelector('.ing-cantidad').value)||0;
+        if(insumoId&&cantidad>0)ings.push({insumoId,cantidad});
+      });
+      secciones.push({nombre:sec.querySelector('.sec-nombre').value.trim()||'Sin nombre',rendimientoBase:parseFloat(sec.querySelector('.sec-rendimiento').value)||1000,unidadRendimiento:sec.querySelector('.sec-unidad').value,ingredientes:ings});
+    });
+    const recetas=DB.getRecetas();
+    const editId=parseInt(document.getElementById('receta-edit-id').value);
+    const receta={id:editId||Date.now(),nombre,imagen:imgUrl,secciones,manoObraPct:parseFloat(document.getElementById('receta-mo').value)||0,energiaPesos:parseFloat(document.getElementById('receta-energia').value)||0,gananciaPct:parseFloat(document.getElementById('receta-ganancia').value)||0};
+    if(editId){const idx=recetas.findIndex(r=>r.id===editId);if(idx>=0)recetas[idx]=receta;}
+    else recetas.push(receta);
+    DB.saveRecetas(recetas);
+    closeModal();renderRecetas();toast('Receta guardada','success');
+  }catch(err){toast('Error: '+err.message,'error');}
+  finally{if(btnSave){btnSave.disabled=false;btnSave.innerHTML='💾 Guardar Receta';}}
+}
+
+function editReceta(id){openRecetaModal(DB.getRecetas().find(r=>r.id===id));}
+
+function deleteReceta(id){
+  if(!confirm('¿Eliminar esta receta?'))return;
+  DB.saveRecetas(DB.getRecetas().filter(r=>r.id!==id));
+  renderRecetas();toast('Receta eliminada','success');
+}
+
+function viewReceta(id){
+  const r=DB.getRecetas().find(x=>x.id===id);if(!r)return;
+  const insumos=DB.getInsumos();
+  let total=0;
+  let html=`<div class="modal-header"><h2>📖 ${r.nombre}</h2><button class="modal-close" onclick="closeModal()">✕</button></div>`;
+  r.secciones.forEach(s=>{
+    html+=`<div class="section-block"><div class="section-title">🔹 ${s.nombre} <span class="text-sm text-muted">(Rinde: ${fmtDec(s.rendimientoBase)} ${s.unidadRendimiento})</span></div>`;
+    html+=`<table style="margin-top:8px"><thead><tr><th>Ingrediente</th><th>Cantidad</th><th>Costo</th></tr></thead><tbody>`;
+    let secCosto=0;
+    s.ingredientes.forEach(ing=>{
+      const ins=insumos.find(i=>i.id===ing.insumoId);
+      const costo=ins?precioXg(ins)*ing.cantidad:0;
+      secCosto+=costo;
+      html+=`<tr><td>${ins?ins.nombre:'?'}</td><td>${fmtDec(ing.cantidad)} ${ins&&ins.unidad==='unidad'?'u':'g'}</td><td>${fmtMoney(costo)}</td></tr>`;
+    });
+    total+=secCosto;
+    html+=`</tbody></table><div class="text-right font-bold mt-16">Subtotal: ${fmtMoney(secCosto)}</div></div>`;
+  });
+  const mo=total*r.manoObraPct/100;
+  const costoProd=total+mo+r.energiaPesos;
+  const ganancia=costoProd*r.gananciaPct/100;
+  html+=`<div class="summary-box">
+    <div class="summary-row"><span>Insumos</span><span>${fmtMoney(total)}</span></div>
+    <div class="summary-row"><span>Mano de Obra (${r.manoObraPct}%)</span><span>${fmtMoney(mo)}</span></div>
+    <div class="summary-row"><span>Energía</span><span>${fmtMoney(r.energiaPesos)}</span></div>
+    <div class="summary-row"><span>Costo Producción</span><span>${fmtMoney(costoProd)}</span></div>
+    <div class="summary-row"><span>Ganancia (${r.gananciaPct}%)</span><span>${fmtMoney(ganancia)}</span></div>
+    <div class="summary-row total"><span>Precio Sugerido</span><span>${fmtMoney(costoProd+ganancia)}</span></div>
+  </div>`;
+  openModal(html);
+}
+
+// ==================== PRESUPUESTAR ====================
+let presupData={recetaId:null,secciones:[],moPct:20,energia:500,gananciaPct:40};
+
+function loadPresupRecetas(){
+  const sel=document.getElementById('presup-receta-select');
+  const recetas=DB.getRecetas();
+  sel.innerHTML='<option value="">— Elegí una receta —</option>'+recetas.map(r=>`<option value="${r.id}">${r.nombre}</option>`).join('');
+}
+
+document.getElementById('presup-receta-select').addEventListener('change',function(){
+  const id=parseInt(this.value);
+  if(!id){document.getElementById('presup-sections-container').innerHTML='';document.getElementById('presup-controls').classList.add('hidden');return;}
+  const r=DB.getRecetas().find(x=>x.id===id);if(!r)return;
+  presupData.recetaId=r.id;
+  document.getElementById('presup-mo-slider').value=r.manoObraPct;
+  document.getElementById('presup-mo-input').value=r.manoObraPct;
+  document.getElementById('presup-energia-slider').value=r.energiaPesos;
+  document.getElementById('presup-energia-input').value=r.energiaPesos;
+  document.getElementById('presup-ganancia-slider').value=r.gananciaPct;
+  document.getElementById('presup-ganancia-input').value=r.gananciaPct;
+  const insumos=DB.getInsumos();
+  const container=document.getElementById('presup-sections-container');
+  container.innerHTML=r.secciones.map((s,si)=>{
+    let ingsHTML=s.ingredientes.map(ing=>{
+      const ins=insumos.find(i=>i.id===ing.insumoId);
+      return`<tr>
+        <td>${ins?ins.nombre:'?'}</td>
+        <td>${fmtDec(ing.cantidad)} ${ins&&ins.unidad==='unidad'?'u':'g'}</td>
+        <td class="scaled-cant" data-orig="${ing.cantidad}" data-insumo="${ing.insumoId}">${fmtDec(ing.cantidad)}</td>
+        <td class="scaled-cost">$0</td>
+      </tr>`;
+    }).join('');
+    return`<div class="card mb-16 presup-section" data-si="${si}" data-rend="${s.rendimientoBase}">
+      <div class="section-header" style="margin-bottom:12px">
+        <span class="section-title">🔹 ${s.nombre}</span>
+        <span class="text-sm text-muted">Rinde: ${fmtDec(s.rendimientoBase)} ${s.unidadRendimiento}</span>
+      </div>
+      <div class="form-group">
+        <label>Cantidad a usar (${s.unidadRendimiento})</label>
+        <input type="number" class="presup-cant-usar" value="${s.rendimientoBase}" step="any" data-rend="${s.rendimientoBase}" onchange="calcPresup()" oninput="calcPresup()">
+      </div>
+      <div class="table-wrapper">
+        <table><thead><tr><th>Ingrediente</th><th>Cant. Original</th><th>Cant. Escalada</th><th>Costo</th></tr></thead>
+        <tbody>${ingsHTML}</tbody></table>
+      </div>
+      <div class="text-right font-bold mt-16 sec-subtotal">Subtotal: $0</div>
+    </div>`;
+  }).join('');
+  document.getElementById('presup-controls').classList.remove('hidden');
+  calcPresup();
+});
+
+['mo','energia','ganancia'].forEach(key=>{
+  const slider=document.getElementById(`presup-${key}-slider`);
+  const input=document.getElementById(`presup-${key}-input`);
+  slider.addEventListener('input',()=>{input.value=slider.value;calcPresup();});
+  input.addEventListener('input',()=>{slider.value=input.value;calcPresup();});
+});
+
+function calcPresup(){
+  const insumos=DB.getInsumos();
+  let totalInsumos=0;
+  document.querySelectorAll('.presup-section').forEach(sec=>{
+    const rend=parseFloat(sec.dataset.rend);
+    const usar=parseFloat(sec.querySelector('.presup-cant-usar').value)||0;
+    const factor=rend>0?usar/rend:0;
+    let secTotal=0;
+    sec.querySelectorAll('tbody tr').forEach(row=>{
+      const orig=parseFloat(row.querySelector('.scaled-cant').dataset.orig);
+      const insumoId=parseInt(row.querySelector('.scaled-cant').dataset.insumo);
+      const ins=insumos.find(i=>i.id===insumoId);
+      const scaled=orig*factor;
+      const costo=ins?precioXg(ins)*scaled:0;
+      row.querySelector('.scaled-cant').textContent=fmtDec(scaled)+(ins&&ins.unidad==='unidad'?' u':' g');
+      row.querySelector('.scaled-cost').textContent=fmtMoney(costo);
+      secTotal+=costo;
+    });
+    sec.querySelector('.sec-subtotal').textContent='Subtotal: '+fmtMoney(secTotal);
+    totalInsumos+=secTotal;
+  });
+  const moPct=parseFloat(document.getElementById('presup-mo-input').value)||0;
+  const energia=parseFloat(document.getElementById('presup-energia-input').value)||0;
+  const gananciaPct=parseFloat(document.getElementById('presup-ganancia-input').value)||0;
+  const costoMO=totalInsumos*moPct/100;
+  const costoProd=totalInsumos+costoMO+energia;
+  const costoGanancia=costoProd*gananciaPct/100;
+  const precioSugerido=costoProd+costoGanancia;
+  document.getElementById('presup-costo-insumos').textContent=fmtMoney(totalInsumos);
+  document.getElementById('presup-costo-mo').textContent=fmtMoney(costoMO);
+  document.getElementById('presup-costo-energia').textContent=fmtMoney(energia);
+  document.getElementById('presup-costo-produccion').textContent=fmtMoney(costoProd);
+  document.getElementById('presup-costo-ganancia').textContent=fmtMoney(costoGanancia);
+  document.getElementById('presup-precio-sugerido').textContent=fmtMoney(precioSugerido);
+  presupData.totalInsumos=totalInsumos;presupData.costoMO=costoMO;presupData.energia=energia;
+  presupData.costoProd=costoProd;presupData.costoGanancia=costoGanancia;
+  presupData.precioSugerido=precioSugerido;presupData.moPct=moPct;presupData.gananciaPct=gananciaPct;
+}
+
+document.getElementById('btn-save-presupuesto').addEventListener('click',()=>{
+  if(!presupData.recetaId){toast('Seleccioná una receta','error');return;}
+  openModal(`
+    <div class="modal-header"><h2>💾 Guardar Presupuesto</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <p class="mb-16">Completá los datos del cliente para el PDF:</p>
+    <div class="form-group"><label>Cliente</label><input type="text" id="p-save-cliente" placeholder="Nombre completo"></div>
+    <div class="input-row">
+      <div class="form-group"><label>Dirección</label><input type="text" id="p-save-direccion" placeholder="Ej: Av. Colón 123"></div>
+      <div class="form-group"><label>Tel-Cel</label><input type="text" id="p-save-telefono" placeholder="351..."></div>
+    </div>
+    <div class="form-group"><label>Email</label><input type="email" id="p-save-email" placeholder="cliente@email.com"></div>
+    <div class="form-group"><label>Fecha de Entrega</label><input type="date" id="p-save-entrega"></div>
+    <div class="form-group"><label>Características / Notas</label><textarea id="p-save-caract" rows="3" placeholder="Ej: Tarta de 20cm con buttercream..."></textarea></div>
+    <div class="flex gap-8 mt-24" style="justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmSavePresupuesto()">💾 Confirmar y Guardar</button>
+    </div>
+  `);
+});
+
+function confirmSavePresupuesto(){
+  const r=DB.getRecetas().find(x=>x.id===presupData.recetaId);
+  const insumos=DB.getInsumos();
+  const secciones=[];
+  document.querySelectorAll('.presup-section').forEach((sec,si)=>{
+    const rend=parseFloat(sec.dataset.rend);
+    const usar=parseFloat(sec.querySelector('.presup-cant-usar').value)||0;
+    const factor=rend>0?usar/rend:0;
+    const ings=[];
+    sec.querySelectorAll('tbody tr').forEach(row=>{
+      const orig=parseFloat(row.querySelector('.scaled-cant').dataset.orig);
+      const insumoId=parseInt(row.querySelector('.scaled-cant').dataset.insumo);
+      const ins=insumos.find(i=>i.id===insumoId);
+      const scaled=orig*factor;
+      ings.push({nombre:ins?ins.nombre:'?',cantidadOriginal:orig,cantidadEscalada:scaled,costoUnitario:ins?precioXg(ins):0,costoTotal:ins?precioXg(ins)*scaled:0});
+    });
+    secciones.push({nombre:r.secciones[si]?r.secciones[si].nombre:'Sección',rendimientoBase:rend,cantidadUsada:usar,ingredientes:ings});
+  });
+  const producto={
+    id:Date.now(),nombre:r.nombre,
+    cliente:document.getElementById('p-save-cliente').value.trim(),
+    direccion:document.getElementById('p-save-direccion').value.trim(),
+    telefono:document.getElementById('p-save-telefono').value.trim(),
+    email:document.getElementById('p-save-email').value.trim(),
+    caracteristicas:document.getElementById('p-save-caract').value.trim(),
+    fecha:new Date().toISOString().split('T')[0],
+    fechaEntrega:document.getElementById('p-save-entrega').value,
+    precioVenta:Math.round(presupData.precioSugerido),
+    recetaId:r.id,recetaNombre:r.nombre,imagen:r.imagen||'',
+    secciones,
+    costoInsumos:presupData.totalInsumos,manoObraPct:presupData.moPct,manoObraPesos:presupData.costoMO,
+    energiaPesos:presupData.energia,gananciaPct:presupData.gananciaPct,gananciaPesos:presupData.costoGanancia,
+    costoTotal:presupData.costoProd,precioSugerido:presupData.precioSugerido,conEnvio:false,costoEnvio:0
+  };
+  const productos=DB.getProductos();productos.push(producto);DB.saveProductos(productos);
+  closeModal();toast('Presupuesto guardado','success');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelector('[data-tab="productos"]').classList.add('active');
+  document.getElementById('tab-productos').classList.add('active');
+  renderProductos();
+}
+
+// ==================== PRODUCTOS ====================
+let selectedProducts=new Set();
+
+function renderProductos(){
+  const productos=DB.getProductos();
+  const search=document.getElementById('productos-search').value.toLowerCase();
+  const grid=document.getElementById('productos-grid');
+  const filtered=productos.filter(p=>!search||p.nombre.toLowerCase().includes(search)||(p.cliente||'').toLowerCase().includes(search));
+  if(!filtered.length){
+    grid.innerHTML=`<div class="empty-state"><div class="icon">🛒</div><p>No hay productos guardados</p><p class="text-sm text-muted">Creá un presupuesto para que aparezca acá</p></div>`;
+    return;
+  }
+  grid.innerHTML=filtered.map(p=>`
+    <div class="product-card" id="prod-${p.id}">
+      <input type="checkbox" class="product-check" data-id="${p.id}" ${selectedProducts.has(p.id)?'checked':''} onchange="toggleProductSelect(${p.id})">
+      <div class="product-name">${p.nombre}</div>
+      <div class="product-client">${p.cliente?'👤 '+p.cliente:'👤 Sin cliente asignado'}</div>
+      <div class="text-sm text-muted">${p.fecha}${p.fechaEntrega?' · Entrega: '+p.fechaEntrega:''}</div>
+      <div class="product-price">${fmtMoney(p.precioVenta||p.precioSugerido)}</div>
+      ${p.conEnvio?'<div class="text-sm" style="color:var(--burgundy)">🚗 Con envío: '+fmtMoney(p.costoEnvio)+'</div>':''}
+      <div class="product-actions">
+        <button class="btn btn-sm btn-primary" onclick="viewProducto(${p.id})">👁️ Detalle</button>
+        <button class="btn btn-sm btn-outline" onclick="editProducto(${p.id})">✏️ Editar</button>
+        <button class="btn btn-sm btn-success" onclick="whatsappProducto(${p.id})">📱 WhatsApp</button>
+        <button class="btn btn-sm btn-burgundy" onclick="printProducto(${p.id})">📄 PDF</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteProducto(${p.id})">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+  updateSelectionButtons();
+}
+
+document.getElementById('productos-search').addEventListener('input',renderProductos);
+
+function toggleProductSelect(id){if(selectedProducts.has(id))selectedProducts.delete(id);else selectedProducts.add(id);updateSelectionButtons();}
+function updateSelectionButtons(){const h=selectedProducts.size>0;document.getElementById('btn-sumar-productos').classList.toggle('hidden',!h);document.getElementById('btn-whatsapp-selected').classList.toggle('hidden',!h);}
+
+document.getElementById('btn-sumar-productos').addEventListener('click',()=>{
+  const productos=DB.getProductos();
+  const selected=productos.filter(p=>selectedProducts.has(p.id));
+  const total=selected.reduce((sum,p)=>sum+(p.precioVenta||p.precioSugerido)+(p.conEnvio?p.costoEnvio:0),0);
+  let html=`<div class="modal-header"><h2>📊 Total Seleccionados</h2><button class="modal-close" onclick="closeModal()">✕</button></div>`;
+  html+=`<table><thead><tr><th>Producto</th><th>Cliente</th><th>Precio</th></tr></thead><tbody>`;
+  selected.forEach(p=>{html+=`<tr><td>${p.nombre}</td><td>${p.cliente||'-'}</td><td>${fmtMoney((p.precioVenta||p.precioSugerido)+(p.conEnvio?p.costoEnvio:0))}</td></tr>`;});
+  html+=`</tbody></table><div class="summary-box"><div class="summary-row total"><span>💰 Total</span><span>${fmtMoney(total)}</span></div></div>`;
+  openModal(html);
+});
+
+function viewProducto(id){
+  const p=DB.getProductos().find(x=>x.id===id);if(!p)return;
+  let html=`<div class="modal-header"><h2>📋 ${p.nombre}</h2><button class="modal-close" onclick="closeModal()">✕</button></div>`;
+  html+=`<div class="flex gap-16 flex-wrap mb-16"><div><strong>Cliente:</strong> ${p.cliente||'Sin asignar'}</div><div><strong>Fecha:</strong> ${p.fecha}</div>${p.fechaEntrega?'<div><strong>Entrega:</strong> '+p.fechaEntrega+'</div>':''}</div>`;
+  p.secciones.forEach(s=>{
+    html+=`<div class="section-block"><div class="section-title">🔹 ${s.nombre}</div>`;
+    html+=`<table style="margin-top:8px"><thead><tr><th>Ingrediente</th><th>Original</th><th>Escalado</th><th>Costo</th></tr></thead><tbody>`;
+    s.ingredientes.forEach(ing=>{html+=`<tr><td>${ing.nombre}</td><td>${fmtDec(ing.cantidadOriginal)}</td><td>${fmtDec(ing.cantidadEscalada)}</td><td>${fmtMoney(ing.costoTotal)}</td></tr>`;});
+    html+=`</tbody></table></div>`;
+  });
+  html+=`<div class="summary-box">
+    <div class="summary-row"><span>Insumos</span><span>${fmtMoney(p.costoInsumos)}</span></div>
+    <div class="summary-row"><span>Mano de Obra (${p.manoObraPct}%)</span><span>${fmtMoney(p.manoObraPesos)}</span></div>
+    <div class="summary-row"><span>Energía</span><span>${fmtMoney(p.energiaPesos)}</span></div>
+    <div class="summary-row"><span>Costo Producción</span><span>${fmtMoney(p.costoTotal)}</span></div>
+    <div class="summary-row"><span>Ganancia (${p.gananciaPct}%)</span><span>${fmtMoney(p.gananciaPesos)}</span></div>
+    ${p.conEnvio?'<div class="summary-row"><span>Envío</span><span>'+fmtMoney(p.costoEnvio)+'</span></div>':''}
+    <div class="summary-row total"><span>Precio Venta</span><span>${fmtMoney((p.precioVenta||p.precioSugerido)+(p.conEnvio?p.costoEnvio:0))}</span></div>
+  </div>`;
+  openModal(html);
+}
+
+function editProducto(id){
+  const p=DB.getProductos().find(x=>x.id===id);if(!p)return;
+  openModal(`
+    <div class="modal-header"><h2>✏️ Editar Producto</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>Nombre del Producto</label><input type="text" id="edit-prod-nombre" value="${p.nombre}"></div>
+    <div class="form-group"><label>Cliente</label><input type="text" id="edit-prod-cliente" value="${p.cliente||''}"></div>
+    <div class="input-row">
+      <div class="form-group"><label>Fecha</label><input type="date" id="edit-prod-fecha" value="${p.fecha}"></div>
+      <div class="form-group"><label>Fecha de Entrega</label><input type="date" id="edit-prod-entrega" value="${p.fechaEntrega||''}"></div>
+    </div>
+    <div class="input-row">
+      <div class="form-group"><label>Dirección</label><input type="text" id="edit-prod-direccion" value="${p.direccion||''}"></div>
+      <div class="form-group"><label>Tel-Cel</label><input type="text" id="edit-prod-telefono" value="${p.telefono||''}"></div>
+    </div>
+    <div class="form-group"><label>Email</label><input type="email" id="edit-prod-email" value="${p.email||''}"></div>
+    <div class="form-group"><label>Características (se muestra en PDF)</label><textarea id="edit-prod-caract" rows="3">${p.caracteristicas||''}</textarea></div>
+    <div class="form-group"><label>Precio de Venta ($)</label><input type="number" id="edit-prod-precio" value="${p.precioVenta||p.precioSugerido}" step="any"></div>
+    <div class="form-group"><label><input type="checkbox" id="edit-prod-envio" ${p.conEnvio?'checked':''} style="width:auto;margin-right:8px">Con envío</label></div>
+    <div class="form-group" id="edit-envio-costo-group" ${p.conEnvio?'':'style="display:none"'}>
+      <label>Costo de Envío ($)</label>
+      <input type="number" id="edit-prod-envio-costo" value="${p.costoEnvio||0}" step="any">
+    </div>
+    <div class="flex gap-8 mt-24" style="justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEditProducto(${p.id})">💾 Guardar</button>
+    </div>
+    <script>document.getElementById('edit-prod-envio').addEventListener('change',function(){document.getElementById('edit-envio-costo-group').style.display=this.checked?'block':'none'});<\/script>
+  `);
+}
+
+function saveEditProducto(id){
+  const productos=DB.getProductos();
+  const idx=productos.findIndex(p=>p.id===id);if(idx<0)return;
+  productos[idx].nombre=document.getElementById('edit-prod-nombre').value.trim();
+  productos[idx].direccion=document.getElementById('edit-prod-direccion').value.trim();
+  productos[idx].telefono=document.getElementById('edit-prod-telefono').value.trim();
+  productos[idx].email=document.getElementById('edit-prod-email').value.trim();
+  productos[idx].caracteristicas=document.getElementById('edit-prod-caract').value.trim();
+  productos[idx].precioVenta=parseFloat(document.getElementById('edit-prod-precio').value)||0;
+  productos[idx].conEnvio=document.getElementById('edit-prod-envio').checked;
+  productos[idx].costoEnvio=parseFloat(document.getElementById('edit-prod-envio-costo').value)||0;
+  DB.saveProductos(productos);closeModal();renderProductos();toast('Producto actualizado','success');
+}
+
+function printProducto(id){
+  const p=DB.getProductos().find(x=>x.id===id);if(!p)return;
+  let imgUrl=p.imagen;
+  if(!imgUrl){const r=DB.getRecetas().find(x=>x.id===p.recetaId);if(r)imgUrl=r.imagen;}
+  document.getElementById('pdf-fecha-hoy').textContent=p.fecha||new Date().toLocaleDateString();
+  document.getElementById('pdf-fecha-entrega').textContent=p.fechaEntrega||'-';
+  document.getElementById('pdf-cliente').textContent=p.cliente||'-';
+  document.getElementById('pdf-direccion').textContent=p.direccion||'-';
+  document.getElementById('pdf-telefono').textContent=p.telefono||'-';
+  document.getElementById('pdf-email').textContent=p.email||'-';
+  document.getElementById('pdf-caracteristicas').textContent=p.caracteristicas||'';
+  const imgEl=document.getElementById('pdf-img');
+  imgEl.src=imgUrl||'';
+  imgEl.style.display=imgUrl?'block':'none';
+  let tableHTML=`<tr><td>1</td><td class="td-detalle"><b>${p.nombre}</b><br>${p.caracteristicas||''}</td><td>${fmtMoney(p.precioVenta)}</td><td>${fmtMoney(p.precioVenta)}</td></tr>`;
+  if(p.conEnvio)tableHTML+=`<tr><td>1</td><td class="td-detalle">Envío a domicilio</td><td>${fmtMoney(p.costoEnvio)}</td><td>${fmtMoney(p.costoEnvio)}</td></tr>`;
+  const totalFinal=(p.precioVenta||0)+(p.conEnvio?p.costoEnvio:0);
+  tableHTML+=`<tr style="background:transparent;font-weight:bold;font-size:16px"><td colspan="2" style="border:none;background:transparent"></td><td style="background:#e8f0fe!important;-webkit-print-color-adjust:exact;">TOTAL</td><td style="background:#e8f0fe!important;-webkit-print-color-adjust:exact;">${fmtMoney(totalFinal)}</td></tr>`;
+  document.getElementById('pdf-table-body').innerHTML=tableHTML;
+  setTimeout(()=>window.print(),500);
+}
+
+function deleteProducto(id){
+  if(!confirm('¿Eliminar este producto?'))return;
+  selectedProducts.delete(id);
+  DB.saveProductos(DB.getProductos().filter(p=>p.id!==id));
+  renderProductos();toast('Producto eliminado','success');
+}
+
+function buildWhatsappMsg(prods){
+  let msg='🎂 *Dolci Patisserie*\n\n¡Hola! Te paso el presupuesto:\n\n📋 *Detalle del pedido:*\n';
+  let total=0,hasEnvio=false,envioTotal=0;
+  prods.forEach(p=>{const precio=p.precioVenta||p.precioSugerido;msg+=`• ${p.nombre}: ${fmtMoney(precio)}\n`;total+=precio;if(p.conEnvio){hasEnvio=true;envioTotal+=(p.costoEnvio||0);}});
+  if(hasEnvio){total+=envioTotal;msg+=`\n🚗 Envío: ${fmtMoney(envioTotal)}\n💰 *Total (con envío): ${fmtMoney(total)}*\n`;}
+  else msg+=`\n💰 *Total: ${fmtMoney(total)}*\n`;
+  msg+=`\nSeña requerida (50%): ✅ *${fmtMoney(Math.round(total*0.5))}*\n`;
+  if(!hasEnvio)msg+=`\n📍 Retiro en: Avenida Colón 1494\n`;
+  msg+=`\n¡Muchas gracias por elegirnos! 💕\nDolci Patisserie 🍰`;
+  return msg;
+}
+
+function whatsappProducto(id){const p=DB.getProductos().find(x=>x.id===id);if(!p)return;window.open('https://wa.me/?text='+encodeURIComponent(buildWhatsappMsg([p])),'_blank');}
+
+document.getElementById('btn-whatsapp-selected').addEventListener('click',()=>{
+  const selected=DB.getProductos().filter(p=>selectedProducts.has(p.id));
+  if(!selected.length)return;
+  window.open('https://wa.me/?text='+encodeURIComponent(buildWhatsappMsg(selected)),'_blank');
+});
+
+// ==================== INIT ====================
+renderInsumos();
+</script>
+</body>
+</html>
